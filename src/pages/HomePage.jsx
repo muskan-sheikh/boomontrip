@@ -1,7 +1,12 @@
+import BangloreSection from "./home/BangloreSection"
+import JoinTeam from "./home/JoinTeam"
 
 function HomePage() {
   return (
-    <div>HomePage</div>
+    <div>
+       <BangloreSection />
+       <JoinTeam/>
+    </div>
   )
 }
 

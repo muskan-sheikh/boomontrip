@@ -12,3 +12,17 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+
+.first-section{
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+}
+
+.first-section h2{
+  color: #1E40AF;
+  font-size: 3rem;
+  font-weight: 700;
+}
