@@ -1,24 +1,54 @@
 import React, { useState } from "react";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Phone, ArrowLeft, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 function LoginPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [phone, setPhone] = useState("");
+    const [otp, setOtp] = useState("");
+    const [step, setStep] = useState("phone"); // "phone" or "otp"
     const [error, setError] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSendOtp = (e) => {
         e.preventDefault();
-        if (!email || !password) {
-            setError("Please fill in all fields");
+        if (!phone || phone.length < 10) {
+            setError("Please enter a valid phone number");
             return;
         }
-        // Here you can add authentication logic
-        console.log("Login attempt:", { email, password });
-        // For now, just clear error
         setError("");
-        // You can redirect or set user state here
+        setLoading(true);
+        // Simulate API call to send OTP
+        setTimeout(() => {
+            setLoading(false);
+            setOtpSent(true);
+            setStep("otp");
+        }, 2000);
+    };
+
+    const handleVerifyOtp = (e) => {
+        e.preventDefault();
+        if (!otp || otp.length !== 6) {
+            setError("Please enter a valid 6-digit OTP");
+            return;
+        }
+        setError("");
+        setLoading(true);
+        // Simulate API call to verify OTP
+        setTimeout(() => {
+            setLoading(false);
+            // On success, redirect or set user state
+            console.log("OTP verified for phone:", phone);
+            // For now, just show success
+            alert("Login successful!");
+        }, 2000);
+    };
+
+    const handleBack = () => {
+        setStep("phone");
+        setOtp("");
+        setError("");
+        setOtpSent(false);
     };
 
     return (
@@ -41,10 +71,12 @@ function LoginPage() {
                         </svg>
                     </div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Welcome Back
+                        {step === "phone" ? "Welcome Back" : "Enter OTP"}
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">
-                        Sign in to your account to continue your journey
+                        {step === "phone"
+                            ? "Enter your phone number to receive OTP"
+                            : `We sent an OTP to ${phone}`}
                     </p>
                 </div>
                 <div className="bg-white py-8 px-6 shadow-xl rounded-lg border border-gray-200">
@@ -53,133 +85,95 @@ function LoginPage() {
                             {error}
                         </div>
                     )}
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div>
-                            <label
-                                htmlFor="email"
-                                className="block text-sm font-medium text-gray-700 mb-2"
-                            >
-                                Email Address
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="appearance-none relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition duration-150 ease-in-out"
-                                    placeholder="Enter your email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label
-                                htmlFor="password"
-                                className="block text-sm font-medium text-gray-700 mb-2"
-                            >
-                                Password
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type={showPassword ? "text" : "password"}
-                                    autoComplete="current-password"
-                                    required
-                                    className="appearance-none relative block w-full px-10 pr-12 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition duration-150 ease-in-out"
-                                    placeholder="Enter your password"
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
-                                />
-                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                    <button
-                                        type="button"
-                                        className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
-                                        onClick={() =>
-                                            setShowPassword(!showPassword)
-                                        }
-                                    >
-                                        {showPassword ? (
-                                            <EyeOff className="h-5 w-5" />
-                                        ) : (
-                                            <Eye className="h-5 w-5" />
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
+                    {step === "phone" ? (
+                        <form className="space-y-6" onSubmit={handleSendOtp}>
+                            <div>
                                 <label
-                                    htmlFor="remember-me"
-                                    className="ml-2 block text-sm text-gray-900"
+                                    htmlFor="phone"
+                                    className="block text-sm font-medium text-gray-700 mb-2"
                                 >
-                                    Remember me
+                                    Phone Number
                                 </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Phone className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="phone"
+                                        name="phone"
+                                        type="tel"
+                                        autoComplete="tel"
+                                        required
+                                        className="appearance-none relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition duration-150 ease-in-out"
+                                        placeholder="Enter your phone number"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                    />
+                                </div>
                             </div>
-
-                            <div className="text-sm">
-                                <a
-                                    href="#"
-                                    className="font-medium text-blue-600 hover:text-blue-500 transition duration-150 ease-in-out"
+                            <div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Forgot your password?
-                                </a>
+                                    {loading ? "Sending OTP..." : "Send OTP"}
+                                </button>
                             </div>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out transform hover:scale-105"
+                        </form>
+                    ) : (
+                        <form className="space-y-6" onSubmit={handleVerifyOtp}>
+                            <div>
+                                <label
+                                    htmlFor="otp"
+                                    className="block text-sm font-medium text-gray-700 mb-2"
+                                >
+                                    OTP
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="otp"
+                                        name="otp"
+                                        type="text"
+                                        maxLength="6"
+                                        required
+                                        className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition duration-150 ease-in-out text-center text-lg tracking-widest"
+                                        placeholder="000000"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex space-x-4">
+                                <button
+                                    type="button"
+                                    onClick={handleBack}
+                                    className="flex-1 flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+                                >
+                                    <ArrowLeft className="h-5 w-5 mr-2" />
+                                    Back
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="flex-1 group relative flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? "Verifying..." : "Verify OTP"}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                    <div className="text-center mt-6">
+                        <p className="text-sm text-gray-600">
+                            Don't have an account?{" "}
+                            <Link
+                                to="/signup"
+                                className="font-medium text-blue-600 hover:text-blue-500 transition duration-150 ease-in-out"
                             >
-                                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                                    <svg
-                                        className="h-5 w-5 text-blue-500 group-hover:text-blue-400"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                </span>
-                                Sign In
-                            </button>
-                        </div>
-
-                        <div className="text-center">
-                            <p className="text-sm text-gray-600">
-                                Don't have an account?{" "}
-                                <Link
-                                    to="/signup"
-                                    className="font-medium text-blue-600 hover:text-blue-500 transition duration-150 ease-in-out"
-                                >
-                                    Sign up here
-                                </Link>
-                            </p>
-                        </div>
-                    </form>
+                                Sign up here
+                            </Link>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
